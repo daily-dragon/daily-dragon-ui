@@ -17,6 +17,7 @@ jobs:
         run: npm run test:coverage
   publish-ui-app:
     needs: build-react-ui
+    #if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -31,7 +32,7 @@ jobs:
       - name: Sync to S3
         uses: shallwefootball/s3-upload-action@master
         with:
-          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: 'daily-dragon-ui'
           source_dir: './dist'
