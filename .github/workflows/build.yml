@@ -1,5 +1,5 @@
 name: Build Daily Dragon
-on: [push]
+on: [ push ]
 jobs:
   build-react-ui:
     runs-on: ubuntu-latest
@@ -15,5 +15,23 @@ jobs:
         run: npm run lint
       - name: Run unit tests
         run: npm run test:coverage
+  publish-ui-app:
+    needs: build-react-ui
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+      - name: Install dependencies
+        run: npm install
       - name: Build project
         run: npm run build
+      - name: Sync to S3
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: 'daily-dragon-ui'
+          source_dir: './dist'
