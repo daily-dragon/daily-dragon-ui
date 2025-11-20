@@ -32,7 +32,7 @@ jobs:
       - name: Sync to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: --delete
+          args: --delete --prefix daily-dragon/
         env:
           AWS_S3_BUCKET: daily-dragon-ui
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
