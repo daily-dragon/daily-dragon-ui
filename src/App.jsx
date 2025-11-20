@@ -38,9 +38,9 @@ function App() {
                     <Header user={user} signOut={signOut}/>
 
                     <Routes>
-                        <Route path="/daily-dragon" element={<Home/>}/>
-                        <Route path="/daily-dragon/vocabulary" element={<VocabularyPage/>}/>
-                        <Route path="/daily-dragon/practice" element={<Practice/>}/>
+                        <Route path="/" element={<Home/>}/>
+                        <Route path="/vocabulary" element={<VocabularyPage/>}/>
+                        <Route path="/practice" element={<Practice/>}/>
                     </Routes>
                 </Box>
             )}

@@ -7,7 +7,7 @@ import {BrowserRouter} from "react-router-dom";
 createRoot(document.getElementById('root')).render(
     //<StrictMode>
         <ChakraProvider value={defaultSystem}>
-            <BrowserRouter>
+            <BrowserRouter basename="/daily-dragon">
                 <App/>
             </BrowserRouter>
         </ChakraProvider>

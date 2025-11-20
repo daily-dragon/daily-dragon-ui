@@ -7,8 +7,8 @@ export default function Home() {
     return (
         <>
             <VStack spacing={4} mt={4}>
-                <Button onClick={() => navigate("/daily-dragon/vocabulary")}>Vocabulary</Button>
-                <Button onClick={() => navigate("/daily-dragon/practice")}>Practice</Button>
+                <Button onClick={() => navigate("/vocabulary")}>Vocabulary</Button>
+                <Button onClick={() => navigate("/practice")}>Practice</Button>
             </VStack>
         </>
     )
