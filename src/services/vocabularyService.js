@@ -1,6 +1,7 @@
 import {fetchAuthSession} from "aws-amplify/auth";
+import {DAILY_DRAGON_API_BASE_URL} from "../config.js";
 
-const VOCABULARY_URL = 'https://c0ouez95i5.execute-api.us-west-2.amazonaws.com/daily-dragon/vocabulary';
+const VOCABULARY_URL = DAILY_DRAGON_API_BASE_URL + '/vocabulary';
 
 const getToken = async () => {
     const session = await fetchAuthSession();

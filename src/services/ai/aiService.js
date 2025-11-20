@@ -1,6 +1,7 @@
 import {EVALUATE_TRANSLATIONS_PROMPT, GET_SENTENCES_PROMPT} from "./prompts.js";
+import {DAILY_DRAGON_API_BASE_URL} from "../../config.js";
 
-const AI_SERVICE_URL = "https://c0ouez95i5.execute-api.us-west-2.amazonaws.com/daily-dragon/openai";
+const AI_SERVICE_URL = DAILY_DRAGON_API_BASE_URL + "/openai";
 
 
 export async function getPracticeSentences(words) {
