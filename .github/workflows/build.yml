@@ -17,7 +17,7 @@ jobs:
         run: npm run test:coverage
   publish-ui-app:
     needs: build-react-ui
-    #if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
