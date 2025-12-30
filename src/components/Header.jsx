@@ -7,7 +7,7 @@ export default function Header({user, signOut}) {
             <Heading size="2xl" colorPalette="blue">
                 每日龙
             </Heading>
-            <HStack spacing={4} mb={4}>
+            <HStack spacing={4} m={4}>
                 <Text>
                     Welcome <Box as="span" fontWeight="bold">{user.username}</Box>
                 </Text>

@@ -38,3 +38,12 @@ export async function addWord(trimmedWord) {
         body: JSON.stringify({word: trimmedWord}),
     });
 }
+
+export async function deleteWord(word) {
+    return await fetch(`${VOCABULARY_URL}/${encodeURIComponent(word)}`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": "Bearer " + await getToken(),
+        },
+    });
+}

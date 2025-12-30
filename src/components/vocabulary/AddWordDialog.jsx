@@ -61,7 +61,7 @@ export function AddWordDialog() {
     return (
         <Dialog.Root>
             <Dialog.Trigger asChild>
-                <Button title="Add new word">+</Button>
+                <Button variant="subtle" title="Add new word" mb={4}>Add word</Button>
             </Dialog.Trigger>
             <Dialog.Backdrop/>
             <Dialog.Positioner>
