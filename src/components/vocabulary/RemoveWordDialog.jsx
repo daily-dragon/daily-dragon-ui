@@ -25,7 +25,6 @@ export function RemoveWordDialog({word, onDeleted}) {
                 type: "error"
             })
         } finally {
-            onClose();
             setRemoveButtonDisabled(false);
         }
     }
