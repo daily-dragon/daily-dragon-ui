@@ -63,4 +63,83 @@ describe('Toaster Component', () => {
         expect(screen.getByText('Test Success')).toBeInTheDocument()
         expect(screen.getByText('This is a test toast')).toBeInTheDocument()
     })
+
+    test('renders a loading toast with spinner', async () => {
+        const mockToaster = jest.requireMock('@chakra-ui/react').Toaster
+        const originalImplementation = mockToaster
+        
+        jest.requireMock('@chakra-ui/react').Toaster = ({ children }) => (
+            <div data-testid="chakra-toaster-mock">
+                {children({
+                    id: '2',
+                    title: 'Loading...',
+                    type: 'loading',
+                })}
+            </div>
+        )
+
+        render(
+            <ChakraProvider value={defaultSystem}>
+                <Toaster />
+            </ChakraProvider>
+        )
+        
+        expect(screen.getByText('Loading...')).toBeInTheDocument()
+        
+        jest.requireMock('@chakra-ui/react').Toaster = originalImplementation
+    })
+
+    test('renders a toast with action button', async () => {
+        const mockToaster = jest.requireMock('@chakra-ui/react').Toaster
+        const originalImplementation = mockToaster
+        
+        jest.requireMock('@chakra-ui/react').Toaster = ({ children }) => (
+            <div data-testid="chakra-toaster-mock">
+                {children({
+                    id: '3',
+                    title: 'Action Toast',
+                    type: 'info',
+                    action: { label: 'Undo' },
+                })}
+            </div>
+        )
+
+        render(
+            <ChakraProvider value={defaultSystem}>
+                <Toaster />
+            </ChakraProvider>
+        )
+        
+        expect(screen.getByText('Action Toast')).toBeInTheDocument()
+        expect(screen.getByText('Undo')).toBeInTheDocument()
+        
+        jest.requireMock('@chakra-ui/react').Toaster = originalImplementation
+    })
+
+    test('renders a closable toast with close button', async () => {
+        const mockToaster = jest.requireMock('@chakra-ui/react').Toaster
+        const originalImplementation = mockToaster
+        
+        jest.requireMock('@chakra-ui/react').Toaster = ({ children }) => (
+            <div data-testid="chakra-toaster-mock">
+                {children({
+                    id: '4',
+                    title: 'Closable Toast',
+                    type: 'warning',
+                    closable: true,
+                })}
+            </div>
+        )
+
+        render(
+            <ChakraProvider value={defaultSystem}>
+                <Toaster />
+            </ChakraProvider>
+        )
+        
+        expect(screen.getByText('Closable Toast')).toBeInTheDocument()
+        expect(screen.getByText('Close')).toBeInTheDocument()
+        
+        jest.requireMock('@chakra-ui/react').Toaster = originalImplementation
+    })
 })
