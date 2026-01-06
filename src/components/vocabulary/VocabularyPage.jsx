@@ -9,7 +9,7 @@ export default function VocabularyPage() {
     const [items, setItems] = useState([]);
     const [loadingVocabulary, setLoadingVocabulary] = useState(true);
 
-    useEffect(() => {
+    const refresh = () => {
         fetchVocabulary()
             .then(vocabulary => {
                 setItems(vocabulary);
@@ -19,14 +19,18 @@ export default function VocabularyPage() {
                 // Handle error (show message, etc.)
                 console.error(err);
             });
+    }
+
+    useEffect(() => {
+        refresh();
     }, []);
 
     return (
         <>
-            <AddWordDialog/>
+            <AddWordDialog onAdd={refresh}/>
             {
                 loadingVocabulary ? (<Spinner/>) :
-                    (<VocabularyList items={items}/>)
+                    (<VocabularyList items={items} onDelete={refresh}/>)
             }
         </>
     );

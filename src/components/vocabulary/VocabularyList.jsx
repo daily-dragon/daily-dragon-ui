@@ -1,4 +1,4 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import {RemoveWordDialog} from "./RemoveWordDialog.jsx";
 import {
     SimpleGrid,
@@ -10,7 +10,7 @@ import {
 
 const PAGE_SIZE = 10;
 
-export function VocabularyList({items}) {
+export function VocabularyList({items, onDelete}) {
     const [page, setPage] = useState(0);
 
     const start = page * PAGE_SIZE;
@@ -32,9 +32,7 @@ export function VocabularyList({items}) {
                         <Text>{item}</Text>
                         <RemoveWordDialog
                             word={item}
-                            onDeleted={() => {
-                                fetchVocabulary();
-                            }}
+                            onDelete={onDelete}
                             style={{position: "absolute", top: 2, right: 2}}
                         />
                     </Box>

@@ -3,26 +3,45 @@ import React from "react";
 import {Button, CloseButton, Dialog, Input, useDialogContext} from "@chakra-ui/react"
 import {useState} from "react";
 import {addWord} from "../../services/vocabularyService.js";
+import {toaster} from "../ui/toaster.jsx";
 
-function AddWordDialogContent({word, setWord, loading, setLoading}) {
+function AddWordDialogContent({setIsOpen, onAdd}) {
     const dialog = useDialogContext();
+
+    const [word, setWord] = useState("");
+    const [adding, setAdding] = useState(false);
 
     const handleSave = async () => {
         const trimmedWord = word.trim();
         if (!trimmedWord) return;
-        setLoading(true);
+        setAdding(true);
         try {
             const response = await addWord(trimmedWord);
             if (response.ok) {
-                dialog.onClose();
+                const json = await response.json();
+                toaster.create({
+                    title: json.message,
+                    type: "success",
+                });
+                setIsOpen(false);
                 setWord("");
+                onAdd();
             } else {
-                // handle error
+                const json = await response.json();
+                toaster.create({
+                    title: json.detail,
+                    type: "error"
+                })
             }
-        } catch (err) {
-            // handle error
+        } catch (e) {
+            console.error(e);
+            toaster.create({
+                title: e,
+                type: "error"
+            })
+        } finally {
+            setAdding(false);
         }
-        setLoading(false);
     };
 
     return (
@@ -44,8 +63,7 @@ function AddWordDialogContent({word, setWord, loading, setLoading}) {
                 <Button
                     colorScheme="blue"
                     onClick={handleSave}
-                    isDisabled={word.trim() === "" || loading}
-                    isLoading={loading}
+                    disabled={!word.trim() || adding}
                 >
                     Save
                 </Button>
@@ -54,24 +72,22 @@ function AddWordDialogContent({word, setWord, loading, setLoading}) {
     );
 }
 
-export function AddWordDialog() {
-    const [word, setWord] = useState("");
-    const [loading, setLoading] = useState(false);
+export function AddWordDialog({onAdd}) {
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <Dialog.Root>
+        <Dialog.Root
+            open={isOpen}
+            onOpenChange={(details) => setIsOpen(details.open)}
+            role="alertdialog"
+        >
             <Dialog.Trigger asChild>
                 <Button variant="subtle" title="Add new word" mb={4}>Add word</Button>
             </Dialog.Trigger>
             <Dialog.Backdrop/>
             <Dialog.Positioner>
                 <Dialog.Content>
-                    <AddWordDialogContent
-                        word={word}
-                        setWord={setWord}
-                        loading={loading}
-                        setLoading={setLoading}
-                    />
+                    <AddWordDialogContent setIsOpen={setIsOpen} onAdd={onAdd}/>
                 </Dialog.Content>
             </Dialog.Positioner>
         </Dialog.Root>

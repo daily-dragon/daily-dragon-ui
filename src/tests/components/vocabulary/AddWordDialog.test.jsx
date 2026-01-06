@@ -14,7 +14,7 @@ test("allows adding a word through dialog workflow", async () => {
         </ChakraProvider>
     );
 
-    fireEvent.click(screen.getByTitle("Add new word")); // "+" button
+    fireEvent.click(screen.getByTitle("Add new word"));
 
     const input = await screen.findByPlaceholderText("Enter new word");
     fireEvent.change(input, {target: {value: "学习"}});

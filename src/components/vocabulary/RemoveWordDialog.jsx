@@ -1,9 +1,9 @@
 import {Button, CloseButton, Dialog} from "@chakra-ui/react"
 import {toaster} from "../ui/toaster"
 import {deleteWord} from "../../services/vocabularyService.js";
-import {useState} from "react";
+import React, {useState} from "react";
 
-export function RemoveWordDialog({word, onDeleted}) {
+export function RemoveWordDialog({word, onDelete}) {
     const [isOpen, setIsOpen] = useState(false);
     const [removeButtonDisabled, setRemoveButtonDisabled] = useState(false);
 
@@ -17,10 +17,10 @@ export function RemoveWordDialog({word, onDeleted}) {
                     title: json.message,
                     type: "success",
                 });
+                onDelete()
             }
         } catch (e) {
             const message = "Error deleting word:"
-            console.error(message, e);
             toaster.create({
                 title: message,
                 type: "error"
