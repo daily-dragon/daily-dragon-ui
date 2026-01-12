@@ -12,16 +12,6 @@ import {fetchAuthSession} from 'aws-amplify/auth';
 import {Authenticator} from "@aws-amplify/ui-react";
 import {useEffect, useState} from "react";
 
-const emailField = [
-    {
-        type: "email",
-        label: "Email",
-        placeholder: "Enter email",
-        required: true,
-        key: "email"
-    },
-];
-
 Amplify.configure(awsConfig);
 
 function App() {
@@ -42,11 +32,7 @@ function App() {
     }, []);
 
     return (
-        <Authenticator
-            formFields={{
-                signUp: emailField
-            }}
-        >
+        <Authenticator signUpAttributes={["email"]}>
             {({signOut, user}) => (
                 <Box className="centered" p={4}>
                     <Header user={user} signOut={signOut}/>
