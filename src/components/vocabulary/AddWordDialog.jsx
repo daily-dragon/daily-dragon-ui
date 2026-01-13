@@ -57,6 +57,7 @@ function AddWordDialogContent({setIsOpen, onAdd}) {
                     placeholder="Enter new word"
                     value={word}
                     onChange={e => setWord(e.target.value)}
+                    maxLentgth={256}
                 />
             </Dialog.Body>
             <Dialog.Footer>
