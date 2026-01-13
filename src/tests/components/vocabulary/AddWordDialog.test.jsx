@@ -86,3 +86,22 @@ test("handles API error when addWord returns ok: false", async () => {
         expect(screen.getByPlaceholderText("Enter new word")).toBeInTheDocument();
     });
 });
+
+test("limits input to 256 characters", async () => {
+    render(
+        <ChakraProvider value={defaultSystem}>
+            <AddWordDialog/>
+        </ChakraProvider>
+    );
+
+    fireEvent.click(screen.getByTitle("Add new word"));
+    const input = await screen.findByPlaceholderText("Enter new word");
+
+    expect(input).toHaveAttribute("maxlength", "256");
+
+    const longString = "a".repeat(300);
+    fireEvent.change(input, {target: {value: longString}});
+
+    expect(input.value.length).toBeLessThanOrEqual(256);
+});
+
