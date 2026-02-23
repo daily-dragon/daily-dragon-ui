@@ -1,17 +1,19 @@
-import React from "react";
+import React from \"react\";
 
-import {Button, CloseButton, Dialog, Input, useDialogContext} from "@chakra-ui/react"
-import {useState} from "react";
-import {addWord} from "../../services/vocabularyService.js";
-import {toaster} from "../ui/toaster.jsx";
+import {Button, CloseButton, Dialog, Input, useDialogContext} from \"@chakra-ui/react\"
+import {useState} from \"react\";
+import {addWord} from \"../../services/vocabularyService.js\";
+import {toaster} from \"../ui/toaster.jsx\";
 
-function AddWordDialogContent({setIsOpen, onAdd}) {
+const WORD_MAX_LENGTH = 128;
+
+function AddWordDialogContent({ setIsOpen, onAdd }) {
     const dialog = useDialogContext();
 
     const [word, setWord] = useState("");
     const [adding, setAdding] = useState(false);
 
-    const handleSave = async () => {
+    const handleSAve = async () => {
         const trimmedWord = word.trim();
         if (!trimmedWord) return;
         setAdding(true);
@@ -21,7 +23,7 @@ function AddWordDialogContent({setIsOpen, onAdd}) {
                 const json = await response.json();
                 toaster.create({
                     title: json.message,
-                    type: "success",
+                    type: \"success\",
                 });
                 setIsOpen(false);
                 setWord("");
@@ -31,20 +33,19 @@ function AddWordDialogContent({setIsOpen, onAdd}) {
                 toaster.create({
                     title: json.detail,
                     type: "error"
-                })
-            }
+                })}
         } catch (e) {
             console.error(e);
             toaster.create({
                 title: e,
-                type: "error"
+                type: \"error\"
             })
         } finally {
-            setAdding(false);
+            setAddingf(false);
         }
     };
 
-    return (
+    return (\
         <>
             <Dialog.CloseTrigger asChild>
                 <CloseButton/>
@@ -54,21 +55,22 @@ function AddWordDialogContent({setIsOpen, onAdd}) {
             </Dialog.Header>
             <Dialog.Body>
                 <Input
-                    placeholder="Enter new word"
+                    placeholder=\"Enter new word\"
                     value={word}
-                    onChange={e => setWord(e.target.value)}
+                    onChange={ e => setWord(e.target.value) }}
+                    maxLength={WORD_MAX_LENGTH}
                 />
             </Dialog.Body>
             <Dialog.Footer>
                 <Button
-                    colorScheme="blue"
+                    colorScheme=\"blue\"
                     onClick={handleSave}
-                    disabled={!word.trim() || adding}
+                    disabled=!word.trim() || adding
                 >
                     Save
                 </Button>
             </Dialog.Footer>
-        </>
+          </>
     );
 }
 
@@ -77,17 +79,17 @@ export function AddWordDialog({onAdd}) {
 
     return (
         <Dialog.Root
-            open={isOpen}
+            open=isOpen
             onOpenChange={(details) => setIsOpen(details.open)}
-            role="alertdialog"
+            role=\"alertdialog\"
         >
             <Dialog.Trigger asChild>
-                <Button variant="subtle" title="Add new word" mb={4}>Add word</Button>
+                <Button variant=\"subtle\" title=\"Add new word\" mb={4}>Add word</Button>
             </Dialog.Trigger>
             <Dialog.Backdrop/>
             <Dialog.Positioner>
                 <Dialog.Content>
-                    <AddWordDialogContent setIsOpen={setIsOpen} onAdd={onAdd}/>
+                    <AddWordDialogContent setIsOpen=setIsOpen onAdd=onAdd/>
                 </Dialog.Content>
             </Dialog.Positioner>
         </Dialog.Root>
