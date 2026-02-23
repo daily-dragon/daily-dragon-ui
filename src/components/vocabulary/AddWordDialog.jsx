@@ -5,6 +5,8 @@ import {useState} from "react";
 import {addWord} from "../../services/vocabularyService.js";
 import {toaster} from "../ui/toaster.jsx";
 
+const WORD_MAX_LENGTH = 128;
+
 function AddWordDialogContent({setIsOpen, onAdd}) {
     const dialog = useDialogContext();
 
@@ -57,6 +59,7 @@ function AddWordDialogContent({setIsOpen, onAdd}) {
                     placeholder="Enter new word"
                     value={word}
                     onChange={e => setWord(e.target.value)}
+                    maxLength={WORD_MAX_LENGTH}
                 />
             </Dialog.Body>
             <Dialog.Footer>
