@@ -1,21 +1,18 @@
-import {EVALUATE_TRANSLATIONS_PROMPT, GET_SENTENCES_PROMPT} from "./prompts.js";
+import {EVALUATE_TRANSLATIONS_PROMPT} from "./prompts.js";
 import {DAILY_DRAGON_API_BASE_URL} from "../../config.js";
+import {getToken} from "../auth.js";
 
-const AI_SERVICE_URL = DAILY_DRAGON_API_BASE_URL + "/openai";
+const PRACTICE_OPENAI_API_URL = DAILY_DRAGON_API_BASE_URL + "/practice";
 
 
 export async function getPracticeSentences(words) {
-    const prompt = GET_SENTENCES_PROMPT
-        .replace("${words}", JSON.stringify(words))
-        .replace("${targetLanguage}", "English")
-        .replace("${targetLanguage}", "English");
-
-    const response = await fetch(AI_SERVICE_URL, {
+    const response = await fetch(PRACTICE_OPENAI_API_URL + "/sentences", {
         method: "POST",
         headers: {
+            "Authorization": "Bearer " + await getToken(),
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({prompt})
+        body: JSON.stringify({words})
     });
 
     if (!response.ok) {
@@ -25,25 +22,65 @@ export async function getPracticeSentences(words) {
     return await response.json();
 }
 
-export async function submitTranslations({words, sentences, translations}) {
-    const prompt = EVALUATE_TRANSLATIONS_PROMPT +
-        sentences.map((sentence, index) => {
-            return `${index+1}. Sentence: "${sentence}"\n` +
-                `User Translation: "${translations[index]}"\n` +
-                `Target Word: "${words[index]}"\n`;
-        }).join("\n");
+export async function submitTranslations(input) {
+    let translationsArray = [];
 
-    const response = await fetch(AI_SERVICE_URL, {
+    if (Array.isArray(input)) {
+        translationsArray = input;
+    } else if (input && Array.isArray(input.words) && Array.isArray(input.sentences) && Array.isArray(input.translations)) {
+        translationsArray = input.words.map((w, i) => ({
+            word: w,
+            sentence: input.sentences[i],
+            translation: input.translations[i]
+        }));
+    } else if (input && Array.isArray(input.translations)) {
+        if (input.translations.length > 0 && typeof input.translations[0] === 'object') {
+            translationsArray = input.translations;
+        } else if (Array.isArray(input.words) && Array.isArray(input.sentences)) {
+            translationsArray = input.words.map((w, i) => ({
+                word: w,
+                sentence: input.sentences[i],
+                translation: input.translations[i]
+            }));
+        } else {
+            translationsArray = input.translations.map(t => ({ translation: t }));
+        }
+    } else {
+        throw new Error('Invalid input for submitTranslations');
+    }
+
+    const response = await fetch(PRACTICE_OPENAI_API_URL + "/evaluate-translations", {
         method: "POST",
         headers: {
+            "Authorization": "Bearer " + await getToken(),
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({prompt})
+        body: JSON.stringify({ translations: translationsArray })
     });
 
     if (!response.ok) {
         throw new Error(`API error: ${response.statusText}`);
     }
 
-    return await response.json();
+    let result = await response.json();
+    if (typeof result === 'string') {
+        try {
+            result = JSON.parse(result);
+        } catch (e) {
+            console.error('Failed to parse submitTranslations response:', e);
+            throw e;
+        }
+    }
+
+    const evaluations = Array.isArray(result.evaluations) ? result.evaluations : (Array.isArray(result) ? result : []);
+
+    return evaluations.map(ev => ({
+        originalSentence: ev.sentence,
+        userTranslation: ev.translation,
+        targetWord: ev.target_word || ev.targetWord || ev.word,
+        wordUsed: ev.word_used,
+        feedback: ev.feedback,
+        correctSentence: ev.correct_sentence,
+        score: ev.score
+    }));
 }

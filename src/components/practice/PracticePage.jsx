@@ -1,3 +1,4 @@
+import React from 'react';
 import {Box, Button, Input, List, Spinner, Text} from "@chakra-ui/react";
 import {getRandomNWords} from "../../services/vocabularyService.js";
 import {useState, useEffect} from "react";
@@ -7,7 +8,7 @@ export function PracticePage({onReview}) {
     const [gettingSentences, setGettingSentences] = useState(true);
     const [words, setWords] = useState([]);
     const [sentences, setSentences] = useState([]);
-    const [translations, setTranslations] = useState({});
+    const [translations, setTranslations] = useState([]);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -15,9 +16,30 @@ export function PracticePage({onReview}) {
             const words = await getRandomNWords(5);
             setWords(words);
 
-            const sentencesResult = await getPracticeSentences(words);
-            setSentences(sentencesResult);
-            setTranslations(Array(sentencesResult.length).fill(""));
+            let sentencesResult = await getPracticeSentences(words);
+
+            if (typeof sentencesResult === 'string') {
+                try {
+                    sentencesResult = JSON.parse(sentencesResult);
+                } catch (e) {
+                    console.error('Failed to parse sentences response:', e);
+                }
+            }
+
+            let sentencesArray = [];
+            if (Array.isArray(sentencesResult)) {
+                sentencesArray = sentencesResult;
+            } else if (sentencesResult && Array.isArray(sentencesResult.sentences)) {
+                sentencesArray = sentencesResult.sentences.map(s => s.sentence || s);
+
+                const returnedWords = sentencesResult.sentences.map(s => s.word).filter(Boolean);
+                if (returnedWords.length === sentencesArray.length) {
+                    setWords(returnedWords);
+                }
+            }
+
+            setSentences(sentencesArray);
+            setTranslations(Array(sentencesArray.length).fill(""));
             setGettingSentences(false);
         })();
     }, []);
@@ -36,7 +58,12 @@ export function PracticePage({onReview}) {
         if (!allFilled) return;
         setSubmitting(true);
         try {
-            const review = await submitTranslations({words, sentences, translations});
+            const payload = sentences.map((sentence, i) => ({
+                word: words[i],
+                sentence,
+                translation: translations[i]
+            }));
+            const review = await submitTranslations({translations: payload});
             onReview(review);
         } finally {
             setSubmitting(false);
