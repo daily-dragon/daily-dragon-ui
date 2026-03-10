@@ -34,7 +34,6 @@ export async function submitTranslations(input) {
             translation: input.translations[i]
         }));
     } else if (input && Array.isArray(input.translations)) {
-        // If translations are already objects, use them. If they're strings but words/sentences are present, map them.
         if (input.translations.length > 0 && typeof input.translations[0] === 'object') {
             translationsArray = input.translations;
         } else if (Array.isArray(input.words) && Array.isArray(input.sentences)) {
