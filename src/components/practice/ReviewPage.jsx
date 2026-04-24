@@ -18,6 +18,8 @@ export default ({review, onFinish}) => (
                             <Text><strong>Sentence:</strong> {r.originalSentence}</Text>
                             <Text><strong>Your translation:</strong> {r.userTranslation}</Text>
                             <Text><strong>Target word:</strong> {r.targetWord}</Text>
+                            <Text><strong>Word used:</strong> {r.wordUsed}</Text>
+                            <Text><strong>Correct sentence:</strong> {r.correctSentence}</Text>
                             <Text><strong>Feedback:</strong> {r.feedback}</Text>
                             <Text><strong>Score:</strong> {r.score}/10</Text>
                         </Box>
