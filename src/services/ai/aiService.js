@@ -78,6 +78,7 @@ export async function submitTranslations(input) {
         originalSentence: ev.sentence,
         userTranslation: ev.translation,
         targetWord: ev.target_word || ev.targetWord || ev.word,
+        target_word_pinyin: ev.target_word_pinyin,
         wordUsed: ev.word_used,
         feedback: ev.feedback,
         correctSentence: ev.correct_sentence,
