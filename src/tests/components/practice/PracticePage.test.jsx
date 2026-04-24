@@ -4,7 +4,8 @@ import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 import { PracticePage } from '../../../components/practice/PracticePage.jsx';
 
 jest.mock('../../../services/vocabularyService.js', () => ({
-  getRandomNWords: jest.fn(() => Promise.resolve(['喜欢', '喝', '学', '完成', '等']))
+  getDueVocabulary: jest.fn(() => Promise.resolve(['喜欢', '喝', '学', '完成', '等'])),
+  submitReviews: jest.fn(() => Promise.resolve())
 }));
 
 jest.mock('../../../services/ai/aiService.js', () => ({
@@ -55,4 +56,12 @@ test('practice flow: fetch sentences, enter translations, submit and call onRevi
   expect(calledWith.translations[0]).toHaveProperty('word');
   expect(calledWith.translations[0]).toHaveProperty('sentence');
   expect(calledWith.translations[0]).toHaveProperty('translation');
+
+  // Ensure submitReviews was called with word+quality pairs
+  const { submitReviews } = require('../../../services/vocabularyService.js');
+  expect(submitReviews).toHaveBeenCalled();
+  const reviews = submitReviews.mock.calls[0][0];
+  expect(Array.isArray(reviews)).toBe(true);
+  expect(reviews[0]).toHaveProperty('word', '喜欢');
+  expect(reviews[0]).toHaveProperty('quality', 10);
 });
