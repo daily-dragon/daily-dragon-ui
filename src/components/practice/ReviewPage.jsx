@@ -17,7 +17,7 @@ export default ({review, onFinish}) => (
                         >
                             <Text><strong>Sentence:</strong> {r.originalSentence}</Text>
                             <Text><strong>Your translation:</strong> {r.userTranslation}</Text>
-                            <Text><strong>Target word:</strong> {r.targetWord}</Text>
+                            <Text><strong>Target word:</strong> {r.targetWord}{r.target_word_pinyin ? ` (${r.target_word_pinyin})` : ''}</Text>
                             <Text><strong>Word used:</strong> {r.wordUsed}</Text>
                             <Text><strong>Correct sentence:</strong> {r.correctSentence}</Text>
                             <Text><strong>Feedback:</strong> {r.feedback}</Text>
