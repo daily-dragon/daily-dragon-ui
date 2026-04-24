@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Button, Input, List, Spinner, Text} from "@chakra-ui/react";
-import {getRandomNWords} from "../../services/vocabularyService.js";
+import {getDueVocabulary, submitReviews} from "../../services/vocabularyService.js";
 import {useState, useEffect} from "react";
 import {getPracticeSentences, submitTranslations} from "../../services/ai/aiService.js";
 
@@ -13,7 +13,7 @@ export function PracticePage({onReview}) {
 
     useEffect(() => {
         (async () => {
-            const words = await getRandomNWords(5);
+            const words = await getDueVocabulary();
             setWords(words);
 
             let sentencesResult = await getPracticeSentences(words);
@@ -64,6 +64,7 @@ export function PracticePage({onReview}) {
                 translation: translations[i]
             }));
             const review = await submitTranslations({translations: payload});
+            await submitReviews(review.map(r => ({word: r.targetWord, quality: r.score})));
             onReview(review);
         } finally {
             setSubmitting(false);
@@ -81,14 +82,12 @@ export function PracticePage({onReview}) {
                 <Box m="6px">
                     <List.Root as="ol">
                         {sentences.map((sentence, index) => (
-                            <>
-                                <List.Item key={index}>{sentence}
-                                    <Input
-                                        value={translations[index]}
-                                        onChange={(e) => handleInputChange(index, e.target.value)}
-                                    />
-                                </List.Item>
-                            </>
+                            <List.Item key={index}>{sentence}
+                                <Input
+                                    value={translations[index]}
+                                    onChange={(e) => handleInputChange(index, e.target.value)}
+                                />
+                            </List.Item>
                         ))}
                     </List.Root>
                 </Box>

@@ -19,10 +19,6 @@ export async function fetchVocabulary() {
     return fetchVocabularyData(VOCABULARY_URL);
 }
 
-export async function getRandomNWords(n) {
-    return fetchVocabularyData(`${VOCABULARY_URL}?count=${n}`);
-}
-
 export async function addWord(trimmedWord) {
     return await fetch(VOCABULARY_URL, {
         method: "POST",
@@ -41,4 +37,25 @@ export async function deleteWord(word) {
             "Authorization": "Bearer " + await getToken(),
         },
     });
+}
+
+export async function getDueVocabulary() {
+    const headers = new Headers();
+    headers.set('Authorization', "Bearer " + await getToken());
+    const response = await fetch(`${DAILY_DRAGON_API_BASE_URL}/vocabulary/due`, {headers});
+    if (!response.ok) throw new Error('Failed to fetch vocabulary data');
+    const data = await response.json();
+    return data.due_words.map(item => item.word);
+}
+
+export async function submitReviews(reviews) {
+    const response = await fetch(`${DAILY_DRAGON_API_BASE_URL}/vocabulary/reviews`, {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + await getToken(),
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({reviews})
+    });
+    if (!response.ok) throw new Error('Failed to submit reviews');
 }
