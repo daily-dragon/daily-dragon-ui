@@ -1,11 +1,14 @@
 import {AddWordDialog} from "./AddWordDialog.jsx";
-import {Spinner} from "@chakra-ui/react";
+import {Spinner, Button} from "@chakra-ui/react";
 import {VocabularyList} from "./VocabularyList.jsx";
 import {useEffect, useState} from "react";
 import {fetchVocabulary} from "../../services/vocabularyService.js";
+import {useNavigate} from "react-router-dom";
+import {FiArrowLeft} from "react-icons/fi";
 
 export default function VocabularyPage() {
 
+    const navigate = useNavigate();
     const [items, setItems] = useState([]);
     const [loadingVocabulary, setLoadingVocabulary] = useState(true);
 
@@ -27,6 +30,7 @@ export default function VocabularyPage() {
 
     return (
         <>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/")}><FiArrowLeft/> Home</Button>
             <AddWordDialog onAdd={refresh}/>
             {
                 loadingVocabulary ? (<Spinner/>) :

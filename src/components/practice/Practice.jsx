@@ -23,10 +23,14 @@ export default function Practice() {
         setReviewResult(null);
         setState(STATES.WELCOME);
     }
+    const practiceAgain = () => {
+        setReviewResult(null);
+        setState(STATES.IN_PROGRESS);
+    }
 
     return <Box>
         {state === STATES.WELCOME && <WelcomePage onStart={startPractice}/>}
         {state === STATES.IN_PROGRESS && <PracticePage onReview={goToReview}/>}
-        {state === STATES.REVIEW && <ReviewPage onFinish={finishPractice} review={reviewResult}/>}
+        {state === STATES.REVIEW && <ReviewPage onFinish={finishPractice} onPracticeAgain={practiceAgain} review={reviewResult}/>}
     </Box>
 }

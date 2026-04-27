@@ -15,7 +15,7 @@ const scoreAlertStatus = (score) => {
     return "error";
 };
 
-export default ({review, onFinish}) => {
+export default ({review, onFinish, onPracticeAgain}) => {
     const avg = (review.reduce((sum, r) => sum + r.score, 0) / review.length).toFixed(1);
     const excellent = review.filter(r => r.score >= 8).length;
     const needsWork = review.filter(r => r.score < 6).length;
@@ -104,6 +104,9 @@ export default ({review, onFinish}) => {
             <HStack justify="center">
                 <Button colorPalette="blue" variant="subtle" onClick={onFinish}>
                     Finish Practice
+                </Button>
+                <Button colorPalette="blue" onClick={onPracticeAgain}>
+                    Practice Again
                 </Button>
             </HStack>
         </VStack>
