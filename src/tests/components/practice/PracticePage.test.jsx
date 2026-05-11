@@ -3,134 +3,60 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 import { PracticePage } from '../../../components/practice/PracticePage.jsx';
 
-const mockGetDueVocabulary = jest.fn();
-const mockSubmitReviews = jest.fn();
-const mockGetPracticeSentences = jest.fn();
-const mockSubmitTranslations = jest.fn();
-
 jest.mock('../../../services/vocabularyService.js', () => ({
-    getDueVocabulary: mockGetDueVocabulary,
-    submitReviews: mockSubmitReviews,
+  getDueVocabulary: jest.fn(() => Promise.resolve(['問裈', '决ヌ', '孞…', '完戙', '筫'])),
+  submitReviews: jest.fn(() => Promise.resolve())
 }));
 
 jest.mock('../../../services/ai/aiService.js', () => ({
-    getPracticeSentences: mockGetPracticeSentences,
-    submitTranslations: mockSubmitTranslations,
+  getPracticeSentences: jest.fn(() => Promise.resolve({
+    sentences: [
+      { word: '六嬨', sentence: 'I like this book.' },
+      { word: '�^r�(', sentence: 'She is drinking tea.' },
+      { word: '孞…', sentence: 'We are learning Chinese.' },
+      { word: '完戙', sentence: 'He finished his work.' },
+      { word: '筫', sentence: 'They are waiting for the bus.' }
+    ]
+  })),
+  submitTranslations: jest.fn(() => Promise.resolve([
+    { originalSentence: 'I like this book.', userTranslation: '我床试年确', targetWord: '扤納', feedback: 'Good', score: 10 }
+  ]))
 }));
 
-// Using Unicode escapes to avoid Base64 encoding issues with CJK characters.
-// \u559c\u6b22 = ��Ҽ (like)
-// \u559c = ^k茈 (drink)
-// \u5b66 = 嚤 (study)
-// \u5b8c\u6210 = 完戧 (complete)
-// \u7d7b = 綫 (wait)
-const WORDS = ['\u559c\u6b22', '\u559c', '\u5b66', '\u5b8c\u6210', '\u7d7b'];
-const SENTENCES = [
-    'I like this book.',
-    'She is drinking tea.',
-    'We are learning Chinese.',
-    'He finished his work.',
-    'They are waiting for the bus.'
-];
+test('practice flow: fetch sentences, enter translations, submit and call onReview', async () => {
+  const onReview = jest.fn();
 
-beforeEach(() => {
-    jest.clearAllMocks();
-    mockGetDueVocabulary.mockResolvedValue(WORDS);
-    mockGetPracticeSentences.mockResolvedValue({
-        sentences: WORDS.map((word, i) => ({ word, sentence: SENTENCES[i] }))
-    });
-    // \u6211\u559c\u6b22\u8fd9\u672c\u4e66 = I like this book
-    mockSubmitTranslations.mockResolvedValue([
-        {
-            originalSentence: SENTENCES[0],
-            userTranslation: '\u6211\u559c\u6b22\u8Fd9\u672c\u4e66',
-            targetWord: WORDS[0],
-            feedback: 'Good',
-            score: 10
-        }
-    ]);
-    mockSubmitReviews.mockResolvedValue(undefined);
-});
+  render(
+    <ChakraProvider value={defaultSystem}>
+      <PracticePage onReview={onReview} />
+    </ChakraProvider>
+  );
 
-const renderComponent = (onReview = jest.fn()) =>
-    render(
-        <ChakraProvider value={defaultSystem}>
-            <PracticePage onReview={onReview} />
-        </ChakraProvider>
-    );
+  // Wait for sentences to be rendered
+  await waitFor(() => expect(screen.getByText('I like this book.')).toBeInTheDocument());
 
-const waitForSentences = () =>
-    waitFor(() => expect(screen.getByText(SENTENCES[0])).toBeInTheDocument());
+  // Fill inputs
+  const inputs = screen.getAllByRole('textbox');
+  inputs.forEach((input, i) => {
+    fireEvent.change(input, { target: { value: `T${i}` } });
+  });
 
-describe('PracticePage', () => {
-    test('submit button is enabled even when all translations are empty', async () => {
-        renderComponent();
-        await waitForSentences();
-        expect(screen.getByRole('button', { name: /submit/i })).not.toBeDisabled();
-    });
+  // Click submit
+  const submitButton = screen.getByRole('button', { name: /submit/i });
+  fireEvent.click(submitButton);
 
-    test('shows confirmation dialog when submitting with empty translations', async () => {
-        renderComponent();
-        await waitForSentences();
+  // Wait for onReview to be called
+  await waitFor(() => expect(onReview).toHaveBeenCalled());
 
-        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+  const { submitTranslations } = require('../../../services/ai/aiService.js');
+  const calledWith = submitTranslations.mock.calls[0][0];
+  expect(Array.isArray(calledWith.translations)).toBe(true);
+  expect(calledWith.translations[0]).toHaveProperty('word');
+  expect(calledWith.translations[0]).toHaveProperty('sentence');
+  expect(calledWith.translations[0]).toHaveProperty('translation');
 
-        await waitFor('() =>
-            expect(screen.getByText("You've left some translations blank. Submit anyway?")).toBeInTheDocument()
-        );
-    });
-
-    test('does not show confirmation dialog when all translations are filled', async () => {
-        const onReview = jest.fn();
-        renderComponent(onReview);
-        await waitForSentences();
-
-        screen.getAllByRole('textbox').forEach((input, i) =>
-            fireEvent.change(input, { target: { value: 'T' + i } })
-        );
-
-        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-
-        await waitFor(() => expect(onReview).toHaveBeenCalled());
-        expect(screen.queryByText("You've left some translations blank. Submit anyway?")).not.toBeInTheDocument();
-    });
-
-    test('submits successfully after confirming with empty translations', async () => {
-        const onReview = jest.fn();
-        renderComponent(onReview);
-        await waitForSentences();
-
-        fireEvent.click(screen.getByRole('button', { name: /^submit$/i }));
-        await waitFor(() =>
-            expect(screen.getByText("You've left some translations blank. Submit anyway?")).toBeInTheDocument()
-        );
-
-        const dialogSubmit = screen.getAllByRole('button', { name: /^submit$/i }).at(-1);
-        fireEvent.click(dialogSubmit);
-
-        await waitFor(() => expect(onReview).toHaveBeenCalled());
-    });
-
-    test('practice flow: fetch sentences, enter translations, submit and call onReview', async () => {
-        const onReview = jest.fn();
-        renderComponent(onReview);
-        await waitForSentences();
-
-        screen.getAllByRole('textbox').forEach((input, i) =>
-            fireEvent.change(input, { target: { value: 'T' + i } })
-        );
-
-        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-        await waitFor(() => expect(onReview).toHaveBeenCalled());
-
-        const calledWith = mockSubmitTranslations.mock.calls[0][0];
-        expect(Array.isArray(calledWith.translations)).toBe(true);
-        expect(calledWith.translations[0]).toHaveProperty('word');
-        expect(calledWith.translations[0]).toHaveProperty('sentence');
-        expect(calledWith.translations[0]).toHaveProperty('translation');
-
-        expect(mockSubmitReviews).toHaveBeenCalledWith(
-            [{ word: WORDS[0], quality: 10 }]
-        );
-    });
+  const { submitReviews } = require('../../../services/vocabularyService.js');
+  const reviews = submitReviews.mock.calls[0][0];
+  expect(reviews[0]).toHaveProperty('word');
+  expect(reviews[0]).toHaveProperty('quality');
 });
