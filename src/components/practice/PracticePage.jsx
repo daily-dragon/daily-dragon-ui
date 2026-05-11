@@ -1,6 +1,6 @@
 import React from 'react';
-import {Box, Button, Input, List, Spinner, Text} from "@chakra-ui/react";
 import {
+    Box, Button, Input, List, Spinner, Text,
     DialogRoot, DialogContent, DialogHeader,
     DialogBody, DialogFooter, DialogTitle, DialogActionTrigger
 } from "@chakra-ui/react";
