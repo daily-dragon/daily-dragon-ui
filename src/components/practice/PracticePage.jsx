@@ -1,5 +1,9 @@
 import React from 'react';
-import {Box, Button, Input, List, Spinner, Text} from "@chakra-ui/react";
+import {
+    Box, Button, Input, List, Spinner, Text,
+    DialogRoot, DialogContent, DialogHeader,
+    DialogBody, DialogFooter, DialogTitle, DialogActionTrigger
+} from "@chakra-ui/react";
 import {getDueVocabulary, submitReviews} from "../../services/vocabularyService.js";
 import {useState, useEffect} from "react";
 import {getPracticeSentences, submitTranslations} from "../../services/ai/aiService.js";
@@ -10,6 +14,7 @@ export function PracticePage({onReview}) {
     const [sentences, setSentences] = useState([]);
     const [translations, setTranslations] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -52,10 +57,9 @@ export function PracticePage({onReview}) {
         });
     };
 
-    const allFilled = Array.isArray(translations) && translations.every((t) => (t || "").trim() !== "");
+    const hasEmpty = Array.isArray(translations) && translations.some((t) => (t || "").trim() === "");
 
-    const handleSubmit = async () => {
-        if (!allFilled) return;
+    const doSubmit = async () => {
         setSubmitting(true);
         try {
             const payload = sentences.map((sentence, i) => ({
@@ -71,14 +75,21 @@ export function PracticePage({onReview}) {
         }
     };
 
+    const handleSubmit = () => {
+        if (hasEmpty) {
+            setConfirmOpen(true);
+        } else {
+            doSubmit();
+        }
+    };
+
     return (
         <>
             {gettingSentences ? (<>
                 <Text>Getting sentences for translation...</Text>
                 <Spinner/>
             </>) : (<>
-                <Text>Translate the following sentences into Chinese using the correct translation of the underlined
-                    word.</Text>
+                <Text>Translate the following sentences into Chinese using the correct translation of the underlined word.</Text>
                 <Box m="6px">
                     <List.Root as="ol">
                         {sentences.map((sentence, index) => (
@@ -92,11 +103,28 @@ export function PracticePage({onReview}) {
                     </List.Root>
                 </Box>
                 <Button colorPalette="blue" variant="subtle" onClick={handleSubmit}
-                        disabled={!allFilled || submitting}>Submit</Button>
+                        disabled={submitting}>Submit</Button>
                 {submitting ? (<>
                     <Text>Submitting your translations...</Text>
                     <Spinner/>
                 </>) : null}
+
+                <DialogRoot open={confirmOpen} onOpenChange={(e) => setConfirmOpen(e.open)}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Incomplete translations</DialogTitle>
+                        </DialogHeader>
+                        <DialogBody>
+                            <Text>You've left some translations blank. Submit anyway?</Text>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogActionTrigger asChild>
+                                <Button variant="outline">Go back</Button>
+                            </DialogActionTrigger>
+                            <Button colorPalette="blue" onClick={() => { setConfirmOpen(false); doSubmit(); }}>Submit</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </DialogRoot>
             </>)
             }
         </>);
