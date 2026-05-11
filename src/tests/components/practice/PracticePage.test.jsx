@@ -4,22 +4,22 @@ import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
 import { PracticePage } from '../../../components/practice/PracticePage.jsx';
 
 jest.mock('../../../services/vocabularyService.js', () => ({
-  getDueVocabulary: jest.fn(() => Promise.resolve(['問裈', '决ヌ', '孞…', '完戙', '筫'])),
+  getDueVocabulary: jest.fn(() => Promise.resolve(['喜欢', '喝', '学', '完成', '等'])),
   submitReviews: jest.fn(() => Promise.resolve())
 }));
 
 jest.mock('../../../services/ai/aiService.js', () => ({
   getPracticeSentences: jest.fn(() => Promise.resolve({
     sentences: [
-      { word: '六嬨', sentence: 'I like this book.' },
-      { word: '�^r�(', sentence: 'She is drinking tea.' },
-      { word: '孞…', sentence: 'We are learning Chinese.' },
-      { word: '完戙', sentence: 'He finished his work.' },
-      { word: '筫', sentence: 'They are waiting for the bus.' }
+      { word: '喜欢', sentence: 'I like this book.' },
+      { word: '喝', sentence: 'She is drinking tea.' },
+      { word: '学', sentence: 'We are learning Chinese.' },
+      { word: '完成', sentence: 'He finished his work.' },
+      { word: '等', sentence: 'They are waiting for the bus.' }
     ]
   })),
   submitTranslations: jest.fn(() => Promise.resolve([
-    { originalSentence: 'I like this book.', userTranslation: '我床试年确', targetWord: '扤納', feedback: 'Good', score: 10 }
+    { originalSentence: 'I like this book.', userTranslation: '我喜欢这本书', targetWord: '喜欢', feedback: 'Good', score: 10 }
   ]))
 }));
 
@@ -48,15 +48,20 @@ test('practice flow: fetch sentences, enter translations, submit and call onRevi
   // Wait for onReview to be called
   await waitFor(() => expect(onReview).toHaveBeenCalled());
 
+  // Ensure submitTranslations was called with expected payload shape
   const { submitTranslations } = require('../../../services/ai/aiService.js');
+  expect(submitTranslations).toHaveBeenCalled();
   const calledWith = submitTranslations.mock.calls[0][0];
   expect(Array.isArray(calledWith.translations)).toBe(true);
   expect(calledWith.translations[0]).toHaveProperty('word');
   expect(calledWith.translations[0]).toHaveProperty('sentence');
   expect(calledWith.translations[0]).toHaveProperty('translation');
 
+  // Ensure submitReviews was called with word+quality pairs
   const { submitReviews } = require('../../../services/vocabularyService.js');
+  expect(submitReviews).toHaveBeenCalled();
   const reviews = submitReviews.mock.calls[0][0];
-  expect(reviews[0]).toHaveProperty('word');
-  expect(reviews[0]).toHaveProperty('quality');
+  expect(Array.isArray(reviews)).toBe(true);
+  expect(reviews[0]).toHaveProperty('word', '喜欢');
+  expect(reviews[0]).toHaveProperty('quality', 10);
 });
