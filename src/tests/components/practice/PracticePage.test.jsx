@@ -60,7 +60,7 @@ describe('PracticePage', () => {
         await waitFor(() => expect(screen.getByText('I like this book.')).toBeInTheDocument());
 
         const inputs = screen.getAllByRole('textbox');
-        inputs.forEach((input, i) => fireEvent.change(input, {target: {value: `T$vI``}}));
+        inputs.forEach((input, i) => fireEvent.change(input, {target: {value: 'T' + i}}));
 
         fireEvent.click(screen.getByRole('button', {name: /submit/i}));
 
@@ -98,7 +98,7 @@ describe('PracticePage', () => {
         await waitFor(() => expect(screen.getByText('I like this book.')).toBeInTheDocument());
 
         const inputs = screen.getAllByRole('textbox');
-        inputs.forEach((input, i) => fireEvent.change(input, {target: {value: `T${i}`}}));
+        inputs.forEach((input, i) => fireEvent.change(input, {target: {value: 'T' + i}}));
 
         fireEvent.click(screen.getByRole('button', {name: /submit/i}));
         await waitFor(() => expect(onReview).toHaveBeenCalled());
