@@ -1,7 +1,7 @@
 import React from 'react';
-import {render, screen, fireEvent, waitFor} from '@testing-library/react';
-import {ChakraProvider, defaultSystem} from '@chakra-ui/react';
-import {PracticePage} from '../../../components/practice/PracticePage.jsx';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ChakraProvider, defaultSystem } from '@chakra-ui/react';
+import { PracticePage } from '../../../components/practice/PracticePage.jsx';
 
 const mockGetDueVocabulary = jest.fn();
 const mockSubmitReviews = jest.fn();
@@ -18,7 +18,13 @@ jest.mock('../../../services/ai/aiService.js', () => ({
     submitTranslations: mockSubmitTranslations,
 }));
 
-const WORDS = ['包嬨', '�y�(', '学…', '完戧', '綫'];
+// Using Unicode escapes to avoid Base64 encoding issues with CJK characters.
+// \u559c\u6b22 = ��Ҽ (like)
+// \u559c = ^k茈 (drink)
+// \u5b66 = 嚤 (study)
+// \u5b8c\u6210 = 完戧 (complete)
+// \u7d7b = 綫 (wait)
+const WORDS = ['\u559c\u6b22', '\u559c', '\u5b66', '\u5b8c\u6210', '\u7d7b'];
 const SENTENCES = [
     'I like this book.',
     'She is drinking tea.',
@@ -31,10 +37,17 @@ beforeEach(() => {
     jest.clearAllMocks();
     mockGetDueVocabulary.mockResolvedValue(WORDS);
     mockGetPracticeSentences.mockResolvedValue({
-        sentences: WORDS.map((word, i) => ({word, sentence: SENTENCES[i]}))
+        sentences: WORDS.map((word, i) => ({ word, sentence: SENTENCES[i] }))
     });
+    // \u6211\u559c\u6b22\u8fd9\u672c\u4e66 = I like this book
     mockSubmitTranslations.mockResolvedValue([
-        {originalSentence: SENTENCES[0], userTranslation: '我好模：' targetWord: WORDS[0], feedback: 'Good', score: 10}
+        {
+            originalSentence: SENTENCES[0],
+            userTranslation: '\u6211\u559c\u6b22\u8Fd9\u672c\u4e66',
+            targetWord: WORDS[0],
+            feedback: 'Good',
+            score: 10
+        }
     ]);
     mockSubmitReviews.mockResolvedValue(undefined);
 });
@@ -42,7 +55,7 @@ beforeEach(() => {
 const renderComponent = (onReview = jest.fn()) =>
     render(
         <ChakraProvider value={defaultSystem}>
-            <PracticePage onReview={onReview}/>
+            <PracticePage onReview={onReview} />
         </ChakraProvider>
     );
 
@@ -53,16 +66,16 @@ describe('PracticePage', () => {
     test('submit button is enabled even when all translations are empty', async () => {
         renderComponent();
         await waitForSentences();
-        expect(screen.getByRole('button', {name: /submit/i})).not.toBeDisabled();
+        expect(screen.getByRole('button', { name: /submit/i })).not.toBeDisabled();
     });
 
     test('shows confirmation dialog when submitting with empty translations', async () => {
         renderComponent();
         await waitForSentences();
 
-        fireEvent.click(screen.getByRole('button', {name: /submit/i}));
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
 
-        await waitFor(() =>
+        await waitFor('() =>
             expect(screen.getByText("You've left some translations blank. Submit anyway?")).toBeInTheDocument()
         );
     });
@@ -73,10 +86,10 @@ describe('PracticePage', () => {
         await waitForSentences();
 
         screen.getAllByRole('textbox').forEach((input, i) =>
-            fireEvent.change(input, {target: {value: 'T' + i}})
+            fireEvent.change(input, { target: { value: 'T' + i } })
         );
 
-        fireEvent.click(screen.getByRole('button', {name: /submit/i}));
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
 
         await waitFor(() => expect(onReview).toHaveBeenCalled());
         expect(screen.queryByText("You've left some translations blank. Submit anyway?")).not.toBeInTheDocument();
@@ -87,12 +100,12 @@ describe('PracticePage', () => {
         renderComponent(onReview);
         await waitForSentences();
 
-        fireEvent.click(screen.getByRole('button', {name: /^submit$/i}));
-        await waitFor(.() =>
+        fireEvent.click(screen.getByRole('button', { name: /^submit$/i }));
+        await waitFor(() =>
             expect(screen.getByText("You've left some translations blank. Submit anyway?")).toBeInTheDocument()
         );
 
-        const dialogSubmit = screen.getAllByRole('button', {name: /^submit$/i}).at(-1);
+        const dialogSubmit = screen.getAllByRole('button', { name: /^submit$/i }).at(-1);
         fireEvent.click(dialogSubmit);
 
         await waitFor(() => expect(onReview).toHaveBeenCalled());
@@ -104,10 +117,10 @@ describe('PracticePage', () => {
         await waitForSentences();
 
         screen.getAllByRole('textbox').forEach((input, i) =>
-            fireEvent.change(input, {target: {value: 'T' + i}})
+            fireEvent.change(input, { target: { value: 'T' + i } })
         );
 
-        fireEvent.click(screen.getByRole('button', {name: /submit/i}));
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }));
         await waitFor(() => expect(onReview).toHaveBeenCalled());
 
         const calledWith = mockSubmitTranslations.mock.calls[0][0];
@@ -117,7 +130,7 @@ describe('PracticePage', () => {
         expect(calledWith.translations[0]).toHaveProperty('translation');
 
         expect(mockSubmitReviews).toHaveBeenCalledWith(
-            [{word: WORDS[0], quality: 10}]
+            [{ word: WORDS[0], quality: 10 }]
         );
     });
 });
