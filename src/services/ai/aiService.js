@@ -78,6 +78,24 @@ export async function submitTranslations(input) {
     }));
 }
 
+export async function getDeepPracticeSentences(word, hskLevel) {
+    const body = hskLevel != null ? {word, hsk_level: hskLevel} : {word};
+    const response = await fetch(LEARNING_API_URL + "/deep-practice-sentences", {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + await getToken(),
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+    }
+
+    return await response.json();
+}
+
 export async function getWordCards(words, hskLevel) {
     const body = hskLevel != null ? {words, hsk_level: hskLevel} : {words};
     const response = await fetch(LEARNING_API_URL + "/word-cards", {

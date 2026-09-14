@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 import {FiArrowLeft, FiArrowRight} from "react-icons/fi";
 import WordCard from "./WordCard.jsx";
 
-export default function LearningCarousel({cards}) {
+export default function LearningCarousel({cards, onDeepPractice}) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const navigate = useNavigate();
 
@@ -26,6 +26,17 @@ export default function LearningCarousel({cards}) {
             </HStack>
 
             <WordCard card={cards[currentIndex]}/>
+
+            <Box textAlign="center">
+                <Button
+                    variant="subtle"
+                    size="sm"
+                    colorPalette="teal"
+                    onClick={() => onDeepPractice(cards[currentIndex])}
+                >
+                    Practice this word
+                </Button>
+            </Box>
 
             <HStack justify="space-between" align="center">
                 {isFirst ? (

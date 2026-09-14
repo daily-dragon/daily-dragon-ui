@@ -67,4 +67,26 @@ describe('LearningCarousel', () => {
         fireEvent.click(screen.getByLabelText('Previous card'));
         expect(screen.getByText('1 / 5')).toBeInTheDocument();
     });
+
+    test('Practice this word button is visible on every card', () => {
+        render(wrap(<LearningCarousel cards={makeCards()} onDeepPractice={jest.fn()} />));
+        expect(screen.getByText('Practice this word')).toBeInTheDocument();
+    });
+
+    test('Practice this word button calls onDeepPractice with current card', () => {
+        const cards = makeCards(3);
+        const onDeepPractice = jest.fn();
+        render(wrap(<LearningCarousel cards={cards} onDeepPractice={onDeepPractice} />));
+        fireEvent.click(screen.getByText('Practice this word'));
+        expect(onDeepPractice).toHaveBeenCalledWith(cards[0]);
+    });
+
+    test('Practice this word button passes the correct card after navigation', () => {
+        const cards = makeCards(3);
+        const onDeepPractice = jest.fn();
+        render(wrap(<LearningCarousel cards={cards} onDeepPractice={onDeepPractice} />));
+        fireEvent.click(screen.getByLabelText('Next card'));
+        fireEvent.click(screen.getByText('Practice this word'));
+        expect(onDeepPractice).toHaveBeenCalledWith(cards[1]);
+    });
 });

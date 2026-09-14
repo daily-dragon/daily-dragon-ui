@@ -5,6 +5,7 @@ import {FiArrowLeft} from "react-icons/fi";
 import {getDueVocabulary} from "../../services/vocabularyService.js";
 import {getWordCards} from "../../services/ai/aiService.js";
 import LearningCarousel from "./LearningCarousel.jsx";
+import DeepPractice from "./DeepPractice.jsx";
 
 const STATES = {
     LOADING: 'LOADING',
@@ -16,6 +17,7 @@ export default function Learning({hskLevel}) {
     const [state, setState] = useState(STATES.LOADING);
     const [cards, setCards] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
+    const [deepPracticeCard, setDeepPracticeCard] = useState(null);
     const navigate = useNavigate();
 
     const loadCards = async () => {
@@ -66,7 +68,15 @@ export default function Learning({hskLevel}) {
                     <FiArrowLeft/> Home
                 </Button>
             </Box>
-            <LearningCarousel cards={cards}/>
+            {deepPracticeCard ? (
+                <DeepPractice
+                    card={deepPracticeCard}
+                    hskLevel={hskLevel}
+                    onClose={() => setDeepPracticeCard(null)}
+                />
+            ) : (
+                <LearningCarousel cards={cards} onDeepPractice={setDeepPracticeCard}/>
+            )}
         </VStack>
     );
 }
