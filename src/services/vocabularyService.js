@@ -21,3 +21,11 @@ export async function submitReviews(reviews) {
     });
     if (!response.ok) throw new Error('Failed to submit reviews');
 }
+
+export async function getTroubleWords(limit = 10) {
+    const headers = new Headers();
+    headers.set('Authorization', "Bearer " + await getToken());
+    const response = await fetch(`${DAILY_DRAGON_API_BASE_URL}/vocabulary/trouble-words?limit=${limit}`, {headers});
+    if (!response.ok) throw new Error('Failed to fetch trouble words');
+    return await response.json();
+}

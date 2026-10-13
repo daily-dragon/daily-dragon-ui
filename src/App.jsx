@@ -7,6 +7,7 @@ import Practice from "./components/practice/Practice.jsx";
 import ProgressPage from "./components/progress/ProgressPage.jsx";
 import Header from "./components/Header.jsx";
 import Learning from "./components/learning/Learning.jsx";
+import TroubleWordsPage from "./components/learning/TroubleWordsPage.jsx";
 import {Amplify} from "aws-amplify";
 import awsConfig from "./aws-exports.js";
 import {Authenticator} from "@aws-amplify/ui-react";
@@ -35,6 +36,7 @@ function App() {
                             <Route path="/progress" element={<ProgressPage/>}/>
                             <Route path="/practice" element={<Practice hskLevel={hskLevel}/>}/>
                             <Route path="/learning" element={<Learning hskLevel={hskLevel}/>}/>
+                            <Route path="/trouble-words" element={<TroubleWordsPage hskLevel={hskLevel}/>}/>
                         </Routes>
                     </Box>
                 </Box>
