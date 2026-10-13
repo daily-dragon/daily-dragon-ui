@@ -108,7 +108,7 @@ export default function TroubleWordsPage({hskLevel}) {
                                     >
                                         {loadingWord === w.word
                                             ? <><Spinner size="sm" mr={2}/>Loading...</>
-                                            : "Deep Practice"
+                                            : "Practice"
                                         }
                                     </Button>
                                 </HStack>
